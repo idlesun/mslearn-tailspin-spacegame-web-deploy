@@ -65,8 +65,8 @@ stages:
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
 
-- stage: 'Deploy'
-  displayName: 'Deploy the web application'
+- stage: 'Preprod'
+  displayName: 'Deploy to Dev env'
   dependsOn: Build
   jobs:
   - deployment: Deploy
@@ -87,3 +87,16 @@ stages:
               azureSubscription: 'Resource Manager - Tailspin - Space Game'
               appName: '$(WebAppName)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
+
+- stage: 'Prod'
+  displayName: 'Deploy to Prod'
+  dependsOn: 'Preprod'
+  jobs:
+    - deployment: DeployProduction
+      environment: 'Prod'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - script: echo Deploying to Production
+  
